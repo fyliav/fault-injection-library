@@ -176,7 +176,7 @@ class Database():
         self.cur.execute("UPDATE experiments SET color = (?) WHERE id = (?);", [color, experiment_id])
         self.con.commit()
 
-    def get_parameters_of_experiment(self, experiment_id:int) -> list:
+    def get_parameters_of_experiment(self, experiment_id:int, column_names:list[str] = None) -> list:
         """
         Get the parameters of a dataset by experiment_id.
 
@@ -186,8 +186,13 @@ class Database():
         Returns:
             List of parameters.
         """
-        self.cur.execute("SELECT * FROM experiments WHERE id = (?);", [experiment_id])
-        self.con.commit()
+        if column_names is None:
+            self.cur.execute("SELECT * FROM experiments WHERE id = (?);", [experiment_id])
+            self.con.commit()
+        else:
+            columns = ", ".join(column_names)
+            self.cur.execute(f"SELECT {columns} FROM experiments WHERE id = (?);", [experiment_id])
+            self.con.commit()
         return next(self.cur, [None])
 
     def get_parameters_of_experiment_rel(self, experiment_id:int) -> list:
